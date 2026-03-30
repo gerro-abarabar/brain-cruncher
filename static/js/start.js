@@ -9,7 +9,7 @@ function status(msg) {
 }
 
 function multiply(a) {
-    if (Math.abs(a) > 100){
+    if (Math.abs(a) > 20){
         return do_operation(a);
     }
     var b = generateRandomNumber(2, 10);
@@ -80,10 +80,11 @@ function get_answer(){
 }
 var question = document.getElementById("question");
 var button=document.getElementById("start-btn")
-var newNum;
+var newNum, speed;
 var num= generateRandomNumber(1,100);
 async function button_func(){
     if (!is_questioning){
+        speed = 10/document.getElementById("speed").value;
         is_questioning=true;
         button.disabled = true;
         
@@ -116,7 +117,7 @@ async function startQuestions(num) {
     for (var i = 0; i < num_of_options; i++) {
         new_num = do_operation(new_num);
         console.log("Intermediate num:"+new_num);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, speed*1000));
     }
     return new_num;
 }
