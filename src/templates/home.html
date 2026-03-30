@@ -18,11 +18,33 @@
         <![endif]-->
         <h1>Welcome to Brain Cruncher</h1>
         <p>A web app that crunches your brain and gives you questions to train your brain.</p>
+        <input type="text" id="username" placeholder="Enter your username">
+        <select id="mode">
+            <option value="single">Single Player</option>
+            <option value="multi">Multi Player</option>
+        </select>
         <button id = "start-btn">Start</button>
         <script>
-            document.getElementById("start-btn").addEventListener("click", function() {
-                window.location.href = "/start";
+            document.getElementById("start-btn").addEventListener("click", async function() {
+                const username = document.getElementById("username").value;
+                const mode = document.getElementById("mode").value;
+                // Save username to localStorage
+                localStorage.setItem("username", username);
+                await fetch('/add_player', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ player_name: username})
+                })
+                if (mode === "single") {
+                    window.location.href = `/start`;
+                } else {
+                    window.location.href = `/start/multiplayer`;
+                }
             });
+            
+            // To retrieve the username later, use: localStorage.getItem("username")
         </script>
     </body>
 </html>
