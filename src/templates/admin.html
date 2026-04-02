@@ -7,6 +7,50 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 </head>
 <body>
-    
+     <h1>Admin Panel</h1>
+     <section id="setup">
+        
+        
+        <div id=content>
+            <h2>Setup</h2>
+            <section id="initial-number">
+                <label for="initial-number-input">Initial Number:</label>
+                <input type="number" id="initial-number-input" name="initial-number">
+            </section>
+            <section id="operations">
+                <p id="operations-display" data-operations=""></p>
+            </section>
+            <section id="controls">
+                
+                <button type="submit" id="add" name="addition">+</button>
+                <button type="submit" id="diff" name="difference">-</button>
+                <button type="submit" id="mul" name="multiply">*</button>
+                <button type="submit" id="div" name="divide">/</button>
+                <button type="submit" id="pow" name="power">^</button>
+                <br>
+                <input type="number" id="operation-value" name="operation-value" placeholder="Value">
+                <br>
+                <label for="duration">Duration (seconds):</label>
+                <input type="range" id="duration" name="duration" min="1" max="10" value="5">
+                <br>
+                <button id="reset-operation">Reset</button>
+            </section>
+            <section id="final-number">
+            </section>
+        </section>
+        <section id="status">
+            <h2>Status</h2>
+            <section id="players">
+                <p>Waiting for players to join...</p>
+            </section>
+            <section id="current_operation"></section>
+            <section id="current_number"></section> <!-- TODO: TEST OUT WITH REAL CLIENTS-->
+            <section id="correct_players"></section>
+
+            <button id="start-button">Start</button>
+        </section>
+     </div>
+     
+     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html>

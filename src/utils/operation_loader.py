@@ -1,37 +1,67 @@
 # This runs in the background to load operations that was given, and loops through it
 
+import threading, os
 from time import sleep
 from random import randint
 from dotenv import load_dotenv
 from flask import request
-
-admin=load_dotenv().get('ADMIN_ID')
+load_dotenv()
+admin=os.environ.get('ADMIN_ID')
 
 operations=[]
 
 class OperationLoader:
-    def __init__(self,operations,current_number):
-        self._operations = operations
-        self._current_operation = None
-        self.current_number = current_number
+    def __init__(self,operations:list,current_number:int, duration:int,done_function=None):
+        self._operations:list = operations
+        self._current_operation:str = None
+        self.current_number:int = current_number
+        self._duration:int = duration
+        self._done_function = done_function
+        self._is_done = True
+        
 
 
-    def start_timer(self, duration):
-        sleep(duration)
+    def _start_timer(self):
+        while True:
+            sleep(self._duration)
+            if self._operations:
+                operation = self._operations.pop(0)
+                self._set_current_operation(operation)
+            else:
+                self._current_operation = None
+                self._done_function()
+                self._is_done = True
+                break
+            print(f"Current Number: {self.current_number}, Current Operation: {self._current_operation}, Remaining Operations: {self._operations}")
+    
+    def is_done(self):
+        return self._is_done
+    
+    def get_duration(self):
+        return self._duration
+
+    def check_answer(self, answer):
+        return self.current_number == answer
+    def start(self):
+        self._is_done = False
+        self._thread = threading.Thread(target=self._start_timer)
+        self._thread.daemon = True  # so that the thread will exit when the main thread exits
+        self._thread.start()
     
     def _set_current_operation(self, operation):
         self._current_operation = operation
-        match operation[0]:
+        operation, operand = operation[0], operation[1:]
+        match operation:
             case "+":
-                self.current_number += int(operation[1:])
+                self.current_number += int(operand)
             case "-":
-                self.current_number -= int(operation[1:])
+                self.current_number -= int(operand)
             case "*":
-                self.current_number *= int(operation[1:])
+                self.current_number *= int(operand)
             case "/":
-                self.current_number /= int(operation[1:])
+                self.current_number /= int(operand)
             case "^":
-                self.current_number **= int(operation[1:])
+                self.current_number **= float(operand)
     
     def get_current_number(self):
         return self.current_number

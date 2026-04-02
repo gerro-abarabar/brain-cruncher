@@ -30,7 +30,7 @@
                 const mode = document.getElementById("mode").value;
                 // Save username to localStorage
                 localStorage.setItem("username", username);
-                await fetch('/add_player', {
+                await fetch('/multiplayer/add_player', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -40,7 +40,7 @@
                 if (mode === "single") {
                     window.location.href = `/start`;
                 } else {
-                    window.location.href = `/start/multiplayer`;
+                    window.location.href = `/multiplayer/play`;
                 }
             });
             

@@ -14,7 +14,7 @@ function refreshState(){
 }
 
 function loopUntilStart(){
-    fetch("/check_start")
+    fetch("/multiplayer/status")
     .then(response => response.json())
     .then(data => {
         // if(data.started){
@@ -23,14 +23,14 @@ function loopUntilStart(){
         //     setTimeout(loopUntilStart, 1000); // Check again after 1 second
         // }
         
-        players=data.players;
+        players = Object.keys(data.players);
         playersElement.textContent = document.createElement("p").textContent = "Players:";
         for (let i=0; i<players.length; i++){
             // playersElement.appendChild(document.createElement("br"));
             playersElement.appendChild(document.createElement("p")).textContent = `- ${players[i]}`;
             
         }
-        setTimeout(loopUntilStart, 5000); // Check again after 1 second
+        setTimeout(loopUntilStart, 2000); // Check again after 1 second
     });
 }
 
