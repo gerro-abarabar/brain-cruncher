@@ -11,6 +11,7 @@ admin=os.getenv('ADMIN_ID')
 admin_name=os.getenv('ADMIN_NAME')
 app = Flask(__name__)
 players={}
+correct_players={}
 operations=ol.OperationLoader([],0,0) # Default Data
 
 @app.route('/')
@@ -54,7 +55,6 @@ def get_status():
         return {
             'started': True,
             "players":players,
-            "operations":operations.get_operations(),
             "current_operation":operations.get_current_operation(),
             "duration":operations.get_duration(),
             "initial_number":operations.get_initial_number(),
@@ -76,27 +76,40 @@ curl -X POST localhost:5000/multiplayer/start \
 def start_multiplayer():
     data = request.get_json()
     admin_id = data.get('admin_id')
+    
     if admin_id != admin:
         print("Unauthorized access attempt with admin_id:", admin_id, "compared to:",admin)
         return {'status': 'error', 'message': 'Unauthorized'}, 401
-    else:
-        global operations
+    global operations, correct_players
 
-        input_data = data.get('operations', '').strip('[').strip("]")  # Remove leading and trailing quotes
-        operations = input_data.split(',')
-        current_number = data.get('current_number', 0)
-        duration = data.get('duration', 0)
+    input_data = data.get('operations', '').strip('[').strip("]")  # Remove leading and trailing quotes
+    operations = input_data.split(',')
+    current_number = data.get('current_number', 0)
+    duration = data.get('duration', 0)
+    correct_players={}
+    for player in players:
+        correct_players[player] = False
+    
+    operations=ol.OperationLoader(operations,int(current_number),int(duration),done_game) # Load new operations for the game
+    operations.start()
+    return {'status': 'success', 'message': 'Multiplayer game started.'}
 
-        operations=ol.OperationLoader(operations,int(current_number),int(duration),done_game) # Load new operations for the game
-        operations.start()
-        return {'status': 'success', 'message': 'Multiplayer game started.'}
-
-@app.route("/multiplayer/get_operation", methods=['GET'])
+@app.route("/multiplayer/admin/status", methods=['POST'])
 def get_operation():
-    if operations.is_done():
-        return {'status': 'error', 'message': 'Game is not active.'}, 400
-    return {'operation': operations.get_current_operation(), 'current_number': operations.get_current_number(), 'duration': operations.get_duration()}
-
+    admin_id=request.get_json().get('admin_id')
+    if admin_id != admin:
+        return {'status': 'error', 'message': 'Unauthorized'}, 401
+    return {
+        'started': True,
+        "players":players,
+        "operations":operations.get_operations(),
+        "current_operation":operations.get_current_operation(),
+        "current_number":operations.get_current_number(),
+        "duration":operations.get_duration(),
+        "initial_number":operations.get_initial_number(),
+        "iteration":operations.get_iteration(),
+        "correct_players":correct_players
+        }
 """
 Testing Command:
 curl -X POST localhost:5000/multiplayer/answer \
@@ -117,11 +130,12 @@ def check_answer():
     
     if not operations.is_done():
         return {'status': 'error', 'message': 'Game is not active.'}, 400
-    
+    global correct_players
     print("Checking answer...", "Player:", player_name, "Answer:", answer, "Current Number:", operations.get_current_number())
     if operations.check_answer(answer):
         print(f"{player_name} answered correctly!")
         players[player_name] += 1  # Increment player score
+        correct_players[player_name] = True
         return {'status': 'success', 'message': f'Congrats! {player_name} answered correctly!'}
     else:
         print(f"{player_name} answered incorrectly.")

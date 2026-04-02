@@ -4,7 +4,7 @@ const playerName = localStorage.getItem("username") || "Unknown Player";
 const playersElement = document.getElementById("players");
 const setupSection = document.getElementById("setup-section");
 const gameSection = document.getElementById("game-section");
-const questionText = document.getElementById("question-text");
+const current_operation = document.getElementById("question-text");
 const answerElement = document.getElementById("answer");
 const submitButton = document.getElementById("submit-answer");
 const scoreElement = document.getElementById("score");
@@ -34,9 +34,9 @@ function status(msg, iteration = null) {
   op = msg[0];
   value = msg.slice(1);
   if (operators[op]) {
-    questionText.textContent = `${iteration}. ${operators[op]} ${value}`;
+    currentOperation.textContent = `${iteration}. ${operators[op]} ${value}`;
   } else {
-    questionText.textContent = msg;
+    currentOperation.textContent = msg;
   }
 }
 
@@ -112,5 +112,5 @@ submitButton.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  refreshState();
+  refreshState(); // FIXME: multiplayer.js:39 Uncaught (in promise) ReferenceError: currentOperation is not defined
 });
