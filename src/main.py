@@ -10,7 +10,6 @@ load_dotenv()
 admin=os.getenv('ADMIN_ID')
 admin_name=os.getenv('ADMIN_NAME')
 app = Flask(__name__)
-operations=[]
 players={}
 operations=ol.OperationLoader([],0,0) # Default Data
 
@@ -49,8 +48,18 @@ def add_operations():
 
 @app.route("/multiplayer/status", methods=['GET'])
 def get_status():
-    # Placeholder implementation - replace with actual start check logic
-    return {'started': False, "players":players}
+    if operations.is_done(): # if the game hasn't started yet
+        return {'started': False, "players":players}
+    else:
+        return {
+            'started': True,
+            "players":players,
+            "operations":operations.get_operations(),
+            "current_operation":operations.get_current_operation(),
+            "duration":operations.get_duration(),
+            "initial_number":operations.get_initial_number(),
+            "iteration":operations.get_iteration()
+            }
 
 def done_game(): # Function to run when the game is done
     print("Game has ended. Resetting operations.")
@@ -99,20 +108,24 @@ def check_answer():
     data = request.get_json()
     answer = int(data.get('answer'))
     player_name = data.get('player_name')
+    
     if not answer or not player_name:
         return {'status': 'error', 'message': 'Missing answer or player name.'}, 400
+    
     if player_name not in players:
         return {'status': 'error', 'message': 'Player not found.'}, 404
+    
     if not operations.is_done():
         return {'status': 'error', 'message': 'Game is not active.'}, 400
+    
     print("Checking answer...", "Player:", player_name, "Answer:", answer, "Current Number:", operations.get_current_number())
     if operations.check_answer(answer):
         print(f"{player_name} answered correctly!")
         players[player_name] += 1  # Increment player score
-        return {'status': 'success', 'message': f'{player_name} answered correctly!'}
+        return {'status': 'success', 'message': f'Congrats! {player_name} answered correctly!'}
     else:
         print(f"{player_name} answered incorrectly.")
-        return {'status': 'success', 'message': f'{player_name} answered incorrectly.'}
+        return {'status': 'success', 'message': f'Sorry, {player_name} answered incorrectly. The correct answer was {operations.get_current_number()}.'}
 
 """
 Testing Command:

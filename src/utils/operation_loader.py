@@ -13,11 +13,13 @@ operations=[]
 class OperationLoader:
     def __init__(self,operations:list,current_number:int, duration:int,done_function=None):
         self._operations:list = operations
-        self._current_operation:str = None
+        self._current_operation:str = ""
         self.current_number:int = current_number
+        self._initial_numer=current_number
         self._duration:int = duration
         self._done_function = done_function
         self._is_done = True
+        self._iteration=0
         
 
 
@@ -27,14 +29,20 @@ class OperationLoader:
             if self._operations:
                 operation = self._operations.pop(0)
                 self._set_current_operation(operation)
+                self._iteration+=1
             else:
-                self._current_operation = None
-                self._done_function()
+                self._current_operation = ""
+                self._done_function() # pyright: ignore[reportOptionalCall]
                 self._is_done = True
+                self._iteration=0
                 break
+            
             print(f"Current Number: {self.current_number}, Current Operation: {self._current_operation}, Remaining Operations: {self._operations}")
     
-    def is_done(self):
+    def get_iteration(self):
+        return self._iteration
+    
+    def is_done(self) -> bool:
         return self._is_done
     
     def get_duration(self):
@@ -59,7 +67,7 @@ class OperationLoader:
             case "*":
                 self.current_number *= int(operand)
             case "/":
-                self.current_number /= int(operand)
+                self.current_number /= float(operand) # pyright: ignore[reportAttributeAccessIssue]
             case "^":
                 self.current_number **= float(operand)
     
@@ -72,3 +80,5 @@ class OperationLoader:
 
     def get_current_operation(self):
         return self._current_operation
+    def get_initial_number(self):
+        return self._initial_numer

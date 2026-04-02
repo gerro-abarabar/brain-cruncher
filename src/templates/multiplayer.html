@@ -1,17 +1,34 @@
-<!DOCTYPE html> 
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Player: {{ player }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-</head>
-<body>
-    <h1 id="title">Welcome, {{ player }}!</h1>
-    <section id="players">
-        <p>Players:</p>
-    </section>
-    <!-- TODO: ADD AN INTERACTION FOR THE USER-->
-    <script src="{{ url_for('static', filename='js/multiplayer.js') }}"></script> 
-</body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/base.css') }}"
+    />
+  </head>
+  <body>
+    <div id="setup-section">
+      <h1 id="title">Welcome, {{ player }}!</h1>
+      <p>Players:</p>
+      <section id="players"></section>
+    </div>
+    <div id="score-section">
+      <h2>Score:</h2>
+      <p id="score">0</p>
+    </div>
+
+    <div id="game-section" style="display: none">
+      <section id="question-section">
+        <h2 id="question-text">Question</h2>
+      </section>
+      <section id="answer-section">
+        <textarea id="answer" rows="4" cols="50"></textarea>
+      </section>
+      <button id="submit-answer" disabled>Submit Answer</button>
+    </div>
+    <script src="{{ url_for('static', filename='js/multiplayer.js') }}"></script>
+  </body>
 </html>
