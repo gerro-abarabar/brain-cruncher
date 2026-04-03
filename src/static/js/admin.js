@@ -139,7 +139,7 @@ function current_number_status(msg, iteration = null) {
   op = msg[0];
   value = msg.slice(1);
   if (operators[op]) {
-    currentOperation.textContent = `${iteration}. ${operators[op]} ${value}`;
+    currentOperation.textContent = `${iteration}. ${operators[op]} = ${value}`;
   } else {
     currentOperation.textContent = msg;
   }
