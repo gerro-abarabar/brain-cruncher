@@ -112,5 +112,5 @@ submitButton.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  refreshState(); // FIXME: multiplayer.js:39 Uncaught (in promise) ReferenceError: currentOperation is not defined
+  refreshState();
 });

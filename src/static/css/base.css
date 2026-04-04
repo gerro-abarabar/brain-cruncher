@@ -1,26 +1,35 @@
 body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #1e1e1e;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 h1 {
-    font-size: 3em;
-    margin: 0;
+  font-size: 3em;
+  margin: 0;
 }
 
 button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1.2em;
-    color: #ffffff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.2em;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+textarea {
+  width: max(80%, 300px);
+
+  height: 100px;
+  /* padding: 10px; */
+  font-size: 3em;
+  margin: 1em;
 }
