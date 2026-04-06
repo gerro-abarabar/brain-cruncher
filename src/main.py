@@ -12,7 +12,9 @@ admin_name=os.getenv('ADMIN_NAME')
 app = Flask(__name__)
 players={}
 correct_players={}
+accepting_answers=False
 operations=ol.OperationLoader([],0,0) # Default Data
+removed_players={} # Key: Player Name, Value: Reason why kicked
 
 @app.route('/')
 def home():
@@ -33,6 +35,18 @@ def admin_panel(admin_id):
         return {'status': 'error', 'message': 'Unauthorized'}, 401
     return render_template('admin.html')
 
+@app.route("/admin/remove_player", methods=['POST'])
+def remove_player():
+    data = request.get_json()
+    if data.get('admin_id') != admin:
+        return {'status': 'error', 'message': 'Unauthorized'}, 401
+    
+    player_name = data['player_name']
+    reason = data['reason']
+    removed_players[player_name] = reason
+    players.remove(player_name)
+    return {'status': 'success'}
+
 @app.route("/get_admin_name", methods=['GET'])
 def get_admin_name():
     return {'admin_name': admin_name}
@@ -50,10 +64,12 @@ def add_operations():
 @app.route("/multiplayer/status", methods=['GET'])
 def get_status():
     if operations.is_done(): # if the game hasn't started yet
-        return {'started': False, "players":players}
+        return {'started': False, "accepting_answers":accepting_answers, "players":players}
     else:
         return {
             'started': True,
+            "accepting_answers":accepting_answers,
+            
             "players":players,
             "current_operation":operations.get_current_operation(),
             "duration":operations.get_duration(),
@@ -62,8 +78,9 @@ def get_status():
             }
 
 def done_game(): # Function to run when the game is done
+    global accepting_answers
     print("Game has ended. Resetting operations.")
-    return {'status': 'success', 'message': 'Game ended.'}
+    accepting_answers=True
 
 """
 Testing Command
@@ -92,6 +109,7 @@ def start_multiplayer():
     
     operations=ol.OperationLoader(operations,int(current_number),int(duration),done_game) # Load new operations for the game
     operations.start()
+    accepting_answers=False
     return {'status': 'success', 'message': 'Multiplayer game started.'}
 
 @app.route("/multiplayer/admin/status", methods=['POST'])
@@ -101,6 +119,7 @@ def get_operation():
         return {'status': 'error', 'message': 'Unauthorized'}, 401
     return {
         'started': True,
+        "accepting_answers":accepting_answers,
         "players":players,
         "operations":operations.get_operations(),
         "current_operation":operations.get_current_operation(),

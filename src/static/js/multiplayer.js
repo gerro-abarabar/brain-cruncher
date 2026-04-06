@@ -82,6 +82,11 @@ function loopUntilStart() {
         }
         scoreElement.textContent = data.players[playerName]; // Display the player's score
         submitButton.disabled = false; // Allows the button to be clicked
+
+        if (data.accepting_answers) {
+          status("Submit your answer.");
+        }
+
         setTimeout(loopUntilStart, 2000); // Check again after 1 second
       }
     });

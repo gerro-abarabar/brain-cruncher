@@ -13,6 +13,7 @@ const initialNumberInput = document.getElementById("initial-number-input");
 const operationsSection = document.getElementById("operations");
 const startButton = document.getElementById("start-button");
 const durationSlider = document.getElementById("duration");
+const presetText = document.getElementById("preset");
 
 // Operation Buttons and Elements
 const addButton = document.getElementById("add");
@@ -44,6 +45,15 @@ resetButton.addEventListener("click", () => {
   finalNumberSection.innerHTML = "<h2>Final Number</h2>\n";
 });
 
+presetText.addEventListener("change", () => {
+  const presetValue = presetText.value.split(";"); // ; is the split for the initial number and preset like: 39;/3,+9
+  const initialNumber = presetValue[0];
+  const operations = presetValue[1];
+  initialNumberInput.value = initialNumber;
+  operationsDisplay.dataset.operations = operations;
+  updateOperations(operations);
+});
+
 function updatePlayerList(players) {
   playersSection.innerHTML = "<h2>Players</h2>";
   const list = document.createElement("ul");
@@ -60,6 +70,7 @@ function updateOperations(operations) {
     operationsDisplay.textContent = "No operations yet.";
     return;
   }
+
   console.log("Updating operations display with:", operations);
   var num = initialNumberInput.value;
   operationsDisplay.textContent = "Operations:\n";
@@ -80,6 +91,8 @@ function updateOperations(operations) {
       num = Math.pow(parseInt(num), operand);
     }
   }
+  // Save as a preset
+  presetText.value = `${initialNumberInput.value};${operations}`;
   finalNumberSection.innerHTML = "<h2>Final Number</h2>\n" + num;
 }
 
