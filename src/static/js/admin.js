@@ -59,8 +59,40 @@ function updatePlayerList(players) {
   const list = document.createElement("ul");
   for (const player in players) {
     const item = document.createElement("li");
+    const removeButton = document.createElement("button");
+
+    removeButton.textContent = "Remove";
+
+    removeButton.addEventListener("click", () => {
+      const reasonPrompt = prompt("Why do you want to remove this player?");
+      const reason = reasonPrompt ? reasonPrompt.trim() : null;
+      if (!reason) {
+        reason = "No reason provided";
+      }
+      fetch("/admin/remove_player", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          admin_id: admin_id,
+          player_name: player,
+          reason: reason,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            updatePlayerList(data.players);
+          } else {
+            alert(data.message);
+          }
+        });
+    });
+
     item.textContent = `${player}: ${players[player]} points`;
     list.appendChild(item);
+    list.appendChild(removeButton);
   }
   playersSection.appendChild(list);
 }
@@ -91,6 +123,9 @@ function updateOperations(operations) {
       num = Math.pow(parseInt(num), operand);
     }
   }
+  if (operations[0] == ",") {
+    operations = operations.slice(1);
+  }
   // Save as a preset
   presetText.value = `${initialNumberInput.value};${operations}`;
   finalNumberSection.innerHTML = "<h2>Final Number</h2>\n" + num;
@@ -105,7 +140,11 @@ function addOperation(operation, operand) {
 }
 
 function getOperations() {
-  return operationsDisplay.dataset.operations.slice(1);
+  var operations = operationsDisplay.dataset.operations;
+  if (operations[0] == ",") {
+    operations = operations.slice(1);
+  }
+  return operations;
 }
 
 startButton.addEventListener("click", () => {
@@ -152,7 +191,7 @@ function current_number_status(msg, iteration = null) {
   op = msg[0];
   value = msg.slice(1);
   if (operators[op]) {
-    currentOperation.textContent = `${iteration}. ${operators[op]} = ${value}`;
+    currentOperation.textContent = `${iteration}. ${operators[op]} ${value}`;
   } else {
     currentOperation.textContent = msg;
   }
@@ -168,10 +207,7 @@ function updateStatus(data) {
     correctPlayers.appendChild(item);
   }
 
-  current_number_status(
-    `${data.current_operation}${data.current_number}`,
-    data.iteration,
-  );
+  current_number_status(`${data.current_operation}`, data.iteration);
   currentNumber.innerHTML = "<h2>Current Number</h2>\n" + data.current_number;
 }
 

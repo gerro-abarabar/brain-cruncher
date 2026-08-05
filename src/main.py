@@ -14,7 +14,7 @@ players={}
 correct_players={}
 accepting_answers=False
 operations=ol.OperationLoader([],0,0) # Default Data
-removed_players={} # Key: Player Name, Value: Reason why kicked
+removed_players={} # Key: Player Name, Value: [Reason why kicked, Score]
 
 @app.route('/')
 def home():
@@ -42,9 +42,10 @@ def remove_player():
         return {'status': 'error', 'message': 'Unauthorized'}, 401
     
     player_name = data['player_name']
-    reason = data['reason']
+    score = players.pop(player_name, 0)
+    reason = data['reason'],score
     removed_players[player_name] = reason
-    players.remove(player_name)
+    
     return {'status': 'success'}
 
 @app.route("/get_admin_name", methods=['GET'])
@@ -61,21 +62,30 @@ def add_operations():
         operations=data.split(',')
     return {'status': 'success', 'operations': operations}
 
+remove_player_iteration=0
 @app.route("/multiplayer/status", methods=['GET'])
 def get_status():
+    global remove_player_iteration, removed_players
     if operations.is_done(): # if the game hasn't started yet
-        return {'started': False, "accepting_answers":accepting_answers, "players":players}
+        data= {'started': False, "accepting_answers":accepting_answers, "players":players,"removed_players":removed_players}
     else:
-        return {
+        data= {
             'started': True,
             "accepting_answers":accepting_answers,
-            
+            "removed_players":removed_players,
             "players":players,
             "current_operation":operations.get_current_operation(),
             "duration":operations.get_duration(),
             "initial_number":operations.get_initial_number(),
             "iteration":operations.get_iteration()
             }
+    if remove_player_iteration<len(players):
+        remove_player_iteration+=1 # It would wait until all players get the message
+        return data
+    else:
+        remove_player_iteration=0
+        removed_players={}
+    return data
 
 def done_game(): # Function to run when the game is done
     global accepting_answers
@@ -98,6 +108,7 @@ def start_multiplayer():
         print("Unauthorized access attempt with admin_id:", admin_id, "compared to:",admin)
         return {'status': 'error', 'message': 'Unauthorized'}, 401
     global operations, correct_players
+    print(f"{data.get('operations', '')=}")
 
     input_data = data.get('operations', '').strip('[').strip("]")  # Remove leading and trailing quotes
     operations = input_data.split(',')
@@ -117,6 +128,18 @@ def get_operation():
     admin_id=request.get_json().get('admin_id')
     if admin_id != admin:
         return {'status': 'error', 'message': 'Unauthorized'}, 401
+    # print({
+    #     'started': True,
+    #     "accepting_answers":accepting_answers,
+    #     "players":players,
+    #     "operations":operations.get_operations(),
+    #     "current_operation":operations.get_current_operation(),
+    #     "current_number":operations.get_current_number(),
+    #     "duration":operations.get_duration(),
+    #     "initial_number":operations.get_initial_number(),
+    #     "iteration":operations.get_iteration(),
+    #     "correct_players":correct_players
+    #     })
     return {
         'started': True,
         "accepting_answers":accepting_answers,
@@ -151,6 +174,10 @@ def check_answer():
         return {'status': 'error', 'message': 'Game is not active.'}, 400
     global correct_players
     print("Checking answer...", "Player:", player_name, "Answer:", answer, "Current Number:", operations.get_current_number())
+    try: # Checks if it is valid input
+        answer = int(answer)
+    except ValueError:
+        return {'status': 'error', 'message': 'Invalid answer. No retries.'}, 400
     if operations.check_answer(answer):
         print(f"{player_name} answered correctly!")
         players[player_name] += 1  # Increment player score

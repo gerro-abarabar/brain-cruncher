@@ -49,7 +49,7 @@ class OperationLoader:
         return self._duration
 
     def check_answer(self, answer):
-        return self.current_number == answer
+        return int(self.current_number) == answer
     def start(self):
         self._is_done = False
         self._thread = threading.Thread(target=self._start_timer)

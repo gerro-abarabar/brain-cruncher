@@ -59,6 +59,10 @@ function gameStarted(data) {
   setTimeout(loopUntilStart, duration * 1000);
 }
 
+function goBackHome() {
+  window.location.href = "/";
+}
+
 function loopUntilStart() {
   if (hasClicked) {
     // If the user has submitted their own submission,  they don't need to do it again.
@@ -67,6 +71,18 @@ function loopUntilStart() {
   fetch("/multiplayer/status")
     .then((response) => response.json())
     .then((data) => {
+      if (
+        data.removed_players &&
+        data.removed_players.hasOwnProperty(playerName)
+      ) {
+        // Remoevs you if you're removed
+        const reason = data.removed_players[playerName][0];
+        const score = data.removed_players[playerName][1];
+        alert(
+          `You have been removed from the game. Reason: ${reason}, your score was: ${score}`,
+        );
+        setTimeout(goBackHome, 1000);
+      }
       if (data.started) {
         gameStarted(data);
       } else {
